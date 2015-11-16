@@ -1,0 +1,218 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[utf8]{inputenc}
+
+\title{C++ Introductie}
+\author{Jochem Raat}
+\date{October 21, 2015}
+
+\lstset{
+  language=C++,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  frame=tb,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{Gray},
+  keywordstyle=\color{Blue},
+  commentstyle=\color{OliveGreen},
+  stringstyle=\color{Maroon},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4
+}
+
+\begin{document}
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introductie}
+Het doel van ons profielwerkstuk is om een programma te schrijven dat eilanden genereert. Dit
+doen we (grotendeels) in de taal C++. Om de code te lezen is het dus handig om wat basiskennis
+van C++ te hebben en die zullen we in dit hoofdstuk proberen te geven.
+De versie van C++ die we gebruiken is C++11. C++11 is een versie van C++ die in 2011 is
+goedgekeurd door de ISO (de Internationale Organisatie voor Standaardisatie). We hebben deze
+versie gekozen omdat deze oud genoeg is om goed ondersteund te worden, maar ook nieuw genoeg
+om vele goede functies te hebben. De belangrijkste functie die we nodig hadden uit C++11 was een
+goede pseudo-willekeurigheid generator, over deze generator vertellen we verderop meer.
+
+\section{Objectgeoriënteerd programmeren}
+Om C++ code te kunnen lezen moet je eerst meer weten over het objectgeoriënteerd programmeren,
+vaak afgekort als OOP van het Engelse Object-Oriented Programming. C++ is namelijk
+oorspronkelijk ontworpen om aan de programmeertaal C de mogelijkheid voor objectgeoriënteerd
+programmeren toe te voegen.
+
+De belangrijkste twee concepten in objectgeoriënteerd programmeren zijn klassen en objecten. Een
+klasse dient als een blauwdruk voor objecten. In een klasse twee soorten informatie over de
+objecten die eruit kunnen ontstaan worden gedefinieerd:
+
+\begin{itemize}
+  \item Welke \textit{attributen} het object heeft waarmee de toestand en de eigenschappen van het object worden opgeslagen.
+  \item Welke \textit{methoden} het object heeft. Deze methoden zijn functies die de attributen van het object kunnen aanpassen of inlezen en daarmee dingen kunnen doen, zoals een van de attributen afdrukken op het scherm.
+\end{itemize}
+
+\section{Voorbeeld van klassen en objecten}
+We zullen de concepten van klassen en objecten proberen te verduidelijken met hulp van een klein voorbeeld. We hebben een klasse \texttt{Persoon} die de attributen naam en \texttt{leeftijd} definieert en de methode \texttt{zegHalloTegen} dat een argument aanneemt, namelijk de \texttt{aangesprokene} waartegen het object hallo moet zeggen. Deze methode zou dan zo kunnen zijn gemaakt dat hij afdrukt: “Hallo \texttt{aangesprokene}, ik ben naam en ik ben \texttt{leeftijd} jaar oud”.
+
+Vervolgens zou je met deze klasse een object \texttt{jan} kunnen initialiseren met de \texttt{naam} “Jan” en de \texttt{leeftijd} 17. Als je tegen dit object dan \texttt{zegHalloTegen} “Bas” zou aanroepen, zou het object het volgende afdrukken: “Hallo Bas, ik ben Jan en ik ben 17 jaar oud”.
+
+\section{Objectgeoriënteerd programmeren in C++}
+In C++ worden de definities van klassen vaak opgesplitst in een header bestand dat aangeeft welke attributen en methoden de klasse heeft en een apart bestand dat de implementaties van de methoden aangeeft. Ook heeft elke klasse in C++ minimaal één constructor, een speciale functie die een objectkan initialiseren vanuit de klasse. De constructor zou in onze voorbeeld met een klasse voora personen bijvoorbeeld twee argumenten kunnen aannemen, de \texttt{naam} en de \texttt{leeftijd}.
+
+Het header bestand voor de \texttt{Persoon} klasse zou bijvoorbeeld een bestand genaamd “\texttt{persoon.h}” kunnen zijn, omdat het gebruikelijk is om header bestanden de extensie “\texttt{.h}” te geven. De inhoud hiervan zou er als volgt uit kunnen zien:
+
+\begin{lstlisting}
+// Voorbeeld 1: persoon.h
+
+#include <string>
+
+class Persoon {
+public:
+    Persoon(std::string naam, int leeftijd);
+    void zegHalloTegen(std::string aangesprokene);
+private:
+    std::string naam;
+    int leeftijd;
+};
+\end{lstlisting}
+
+In dit bestand wordt dus vastgesteld welke attributen en methodes de klasse \texttt{Persoon} bevat. Om te begrijpen hoe dit wordt genoteerd zullen we regel voor regel de code doorlopen.
+
+\begin{lstlisting}[frame=none]
+#include <string>
+\end{lstlisting}
+
+Regels die beginnen met een hekje ('\texttt{\#}') zijn instructies voor de compiler. De compiler is een programma die de C++ code die we schrijven omzet naar een programma dat kan worden uitgevoerd. In dit geval verteld \texttt{\#include <string>} aan de compiler dat we de module \texttt{string} nodig hebben. Deze gebruiken we verderop namelijk voor het type \texttt{std::string}.
+
+\begin{lstlisting}[frame=none]
+class Persoon 
+\end{lstlisting}
+
+Dit geeft aan dat we een klasse gaan definiëren met de naam persoon, de definitie van de klasse is alles binnen de accolades ('\texttt{\{}' en '\texttt{\}}').
+
+\begin{lstlisting}[frame=none]
+public:
+\end{lstlisting}
+
+Dit geeft aan dat de komende regels allemaal over attributen en methodes van de klasse gaan die publiek zijn. Publiek geeft aan dat een methode of attribuut ook door gebruikers van de objecten die vanuit de klasse worden gemaakt kan worden gebruikt. De private attributen en methoden kunnen alleen door methoden van het object zelf worden gebruikt.
+
+\begin{lstlisting}[frame=none]
+Persoon(std::string naam, int leeftijd);
+\end{lstlisting}
+
+Hier wordt de constructor gedefinieerd, waarmee dus een object van deze klasse kan worden geïnitialiseerd. Je kan zien dat dit de constructor is doordat de naam precies hetzelfde is als de naam van de gehele klasse, namelijk \texttt{Persoon}. Na \texttt{Persoon} staan de twee argumenten die je aan de constructor moet meegeven tussen haakje, gescheiden door een komma.
+
+Het eerste is \texttt{std::string} naam dit geeft een argument aan van het type \texttt{std::string}. Ditis het type waarmee stukjes tekst worden aangegeven in C++, die vaak gewoon kortaf strings worden genoemd. \texttt{std::} geeft aan dat het om het type \texttt{string} gaat dat in de standaard is gedefinieerd (std is kort voor standard), het is vooral belangrijk om te onthouden dat \texttt{std::string} een stukje tekst aangeeft. Achter het type staat de naam van het argument, wat in principe niet belangrijk is voor de klasse, maar wel handig voor de mensen die het lezen om te zien wat het argument aangeeft.
+
+Het tweede is int \texttt{leeftijd}, een argument van het type \texttt{int}. Een int is een integer, dus een geheel getal. Achter \texttt{int} staat wederom de naam van het argument, die ook hier niet belangrijk is, maar wel aangeeft waar het argument voor zal worden gebruikt. Na de argumenten komt de punt- komma om aan te geven dat dit het einde van de definitie van de constructor is.
+
+\begin{lstlisting}[frame=none]
+void zegHalloTegen(std::string aangesprokene);
+\end{lstlisting}
+
+Hier wordt de eerste (en meteen ook de laatste) echte methode gedefinieerd, namelijk de methode genaamd \texttt{zegHalloTegen}. Voor de naam van de methode staat \texttt{void} dit betekent dat \texttt{zegHalloTegen} niks terug geeft (void betekent leegte in het Engels). Dit heet het return type, dat dus aangeeft wat de methode “\emph{returnt}”. Dit return type is nodig omdat sommige methoden iets terug moeten geven, zodat een andere methode dat kan gebruiken.
+
+Tussen haakjes staan achter de naam de argumenten die deze methode mee moet krijgen gegeven, dit is er in dit geval maar één namelijk \texttt{std::string aangesprokene}. Dit is dus de naam van degene die door het object moet worden begroet. Deze naam is ook weer van het type \texttt{std::string} en geeft dus een stukje tekst aan. Na dit argument volgt de punt-komma om aan te geven dat de definitie van deze methode hier eindigt.
+
+\begin{lstlisting}[frame=none]
+private:
+\end{lstlisting}
+
+Dit geeft aan dat de volgende definities private attributen en methoden aangeven.
+
+\begin{lstlisting}[frame=none]
+std::string naam; 
+\end{lstlisting}
+
+Dit is het eerste attribuut van de klasse, genaamd naam. Dit attribuut is van het type \texttt{std::string}, dus weer een stukje tekst. Bij een attribuut is de naam die eraan wordt gegeven in het header bestand wel belangrijk in tegenstelling tot de namen van argumenten van methodes. De naam van een attribuut wordt namelijk gebruikt om dat attribuut te kunnen veranderen of bekijken in de code.
+
+\begin{lstlisting}[frame=none]
+int leeftijd;
+\end{lstlisting}
+
+Dit is het tweede attribuut van de klasse, met de naam \texttt{leeftijd}. Dit attribuut is van het type \texttt{int}, dus het gaat om een getal.
+
+\begin{lstlisting}[frame=none]
+};
+\end{lstlisting}
+
+Een sluitende accolade gevolgd door een punt-komma geeft het eind van de definitie van attributen en methoden van de klasse aan. Nu gaan we kijken naar het bestand dat de methoden en de \texttt{constructor} ook echt definieert. Dit bestand zou bijvoorbeeld “\texttt{persoon.cpp}” kunnen heten. De extensie “\texttt{.cpp}” (“\texttt{.cpp}” staat voor \emph{C Plus Plus}) is gebruikelijk voor de echte code bestanden waarin de methodes van de klassen worden uitgewerkt.
+
+\begin{lstlisting}
+// Voorbeeld 2: persoon.cpp
+
+#include <iostream>
+#include "persoon.h"
+
+Persoon::Persoon(std::string naam, int leeftijd)
+{
+    this -> naam = naam;
+    this -> leeftijd = leeftijd;
+}
+
+void Persoon::zegHalloTegen(std::string aangesprokene)
+{
+    std::cout << "Hallo " << aangesprokene
+               << ", ik ben " << this -> naam
+               << " en ik ben " << this -> leeftijd
+               << " jaar oud" << std::endl;
+}
+\end{lstlisting}
+
+Laten we weer stukje voor stukje door de code heen lopen:
+
+\begin{lstlisting}[frame=none]
+#include <iostream>
+\end{lstlisting}
+
+Dit vertelt de compiler dat we \texttt{iostream} nodig hebben, hierin zijn de functies gedefinieerd die
+ons helpen om dingen af te drukken op het scherm.
+
+\begin{lstlisting}[frame=none]
+#include "persoon.h"
+\end{lstlisting}
+
+Dit vertelt de compiler dat we de definities van welke methoden en attributen de klasse \texttt{Persoon} heeft nodig hebben. Die hebben we namelijk opgeslagen in “\texttt{persoon.h}”. We gebruiken hier aanhalingstekens in plaats de hoekige haakjes ('\texttt{<}' en '\texttt{>}'), omdat dit een bestand is dat we zelf hebben gedefinieerd en niet iets wat al door iemand anders is gedefinieerd.
+
+\begin{lstlisting}[frame=none]
+Persoon::Persoon(std::string naam, int leeftijd)
+\end{lstlisting}
+
+Deze regel geeft aan dat we nu de code voor de constructor van \texttt{Persoon} gaan definiëren. De eerste keer dat er “Persoon” staat verwijst dat naar de klasse waar dit bij hoort, daarna komt de naam van hetgene wat we nu van die klasse gaan beschrijven. Dat is dus hier de constructor, die dezelfde naam heeft als de klasse zelf. Na de naam komen tussen haakjes weer de argumenten. Je kan zien dat de twee types weer hetzelfde zijn, met daarachter de namen van de argumenten. De namen van de argumenten maken deze keer wel uit, omdat de namen zijn waarmee deze argumenten kunnen worden gebruikt in de code van deze methode.
+
+\begin{lstlisting}[frame=none]
+{
+\end{lstlisting}
+
+Dit geeft aan dat vanaf deze openings-accolade tot de bijhorende sluitings-accolade de code vandeze methode is.
+
+\begin{lstlisting}[frame=none]
+this -> naam = naam;
+\end{lstlisting}
+
+Dit is een \emph{statement}, een stukje code dat wordt uitgevoerd zodra deze methode wordt gebruikt. In het midden staat de \texttt{=-operator}, die wordt gebruikt om de waarde van de rechter variabele in de linker te stoppen. In dit geval wordt de waarde van naam, die we in deze constructor als argument mee hebben gekregen in \texttt{this -> naam} gezet. De “\texttt{this}” hierin staat voor dit \emph{object}, dus het \emph{object} dat we met deze constructor gaan bouwen. Het “\texttt{-> naam}” staat voor het attribuut naam hiervan. Dus deze regel kopieert de waarde van het argument naam wat deze constructor heeft megekregen in het attribuut naam van het object wat we met deze constructor maken.
+
+\begin{lstlisting}[frame=none]
+this -> leeftijd = leeftijd;
+\end{lstlisting}
+
+Hier gebeurt hetzelfde als in de vorige regel, maar dan wordt de waarde van het argument \texttt{leeftijd} in het attribuut leeftijd gezet.
+
+\begin{lstlisting}[frame=none]
+}
+\end{lstlisting}
+
+Dit geeft aan dat hiermee de code die bij de constructor hoort afgelopen is.
+
+\begin{lstlisting}[frame=none]
+void Persoon::zegHalloTegen(std::string aangesprokene)
+\end{lstlisting}
+
+\end{document}
