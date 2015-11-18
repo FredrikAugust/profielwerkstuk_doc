@@ -7,6 +7,7 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{wrapfig}
+\usepackage{subfigure}
 
 \title{Profielwerkstuk Documentatie}
 
@@ -28,7 +29,7 @@ basicstyle={\small\ttfamily},
 numbers=none,
 numberstyle=\tiny\color{Gray},
 keywordstyle=\color{Blue},
-commentstyle={OliveGreen},
+commentstyle=\color{OliveGreen},
 stringstyle=\color{Maroon},
 breaklines=true,
 breakatwhitespace=true,
@@ -293,6 +294,109 @@ We moeten al deze elementen op een manier opslaan zodat we ze makkelijk kunnen v
 
 \newpage
 
+\section{Hoogtekaart}
+
+\subsection{Introductie}
+
+De eerste stap in het generen van onze wereld is een initiële hoogtekaart maken. Daarmee bedoelen wij een representatie die voor elke plek de hoogte aangeeft. De bedoeling is dat deze hoogtekaart later door andere modules kan worden aangepast, de rivier module zou bijvoorbeeld een pad kunnen weg eroderen.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \includegraphics[width=0.9\linewidth]{hoogtekaart-line.png}
+  \caption{\cite{hoogtekaart-illustratie}}
+  \label{fig:hoogtekaart-line}
+\end{wrapfigure}
+
+Om de hoogtekaart te generen hebben we besloten een variant van het midpoint-displacement algoritme, het diamond-square algoritme te gebruiken. Dit algoritme is een verbeterde variant van het midpoint-displacement algoritme en genereert net als het midpoint-displacement algoritme een (semi-)fractal. De hoogtekaart die gegenereerd wordt heeft dus een vergelijkbare opbouw op elke schaal. Dit algoritme wordt daarom vaak gebruikt voor het genereren van een terrein aangezien een landschap op grote schaal (een berg) grofweg dezelfde vorm heeft als op kleine schaal (een rots).
+
+Om het diamond-square algoritme voor een 2 dimensionale kaart uit te leggen is het handig om eerst het midpoint-displacement algoritme in 1 dimensie uit te leggen, aangezien het diamond-square algoritme een verbetering is van het midpoint-displacement algoritme voor 2 dimensies.
+
+\subsection{Het midpoint-displacement algoritme in 1 dimensie}
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \includegraphics[width=0.9\linewidth]{hoogtekaart-midpoint.png}
+  \caption{\cite{hoogtekaart-illustratie}}
+  \label{fig:hoogtekaart-midpoint}
+\end{wrapfigure}
+
+Het midpoint-displacement algoritme werkt in 1 dimensie op een lijst van $2^n + 1$ punten, waarvan word aangenomen dat ze op een lijn allemaal even ver van elkaar af liggen, alle punten worden op een hoogte van 0 geplaatst. De startsituatie wordt in Fig.~\ref{fig:hoogtekaart-line} grafisch weergegeven. De 9 punten $(2^3 + 1)$ zijn in rood afgebeeld.
+
+Vervolgens wordt het middelste punt met een willekeurige hoeveelheid (uniform verdeeld) naar omhoog of omlaag verplaatst. In Fig.~\ref{fig:hoogtekaart-midpoint} is te zien hoe het middelste punt naar boven is verplaatst. Alle punten die nog geen waarde hebben gekregen bewegen mee alsof een punt op een touw omhooggetrokken wordt.
+
+\begin{figure}
+  \centering
+  \parbox{0.33\textwidth}{%
+    \includegraphics[width=0.9\linewidth]{hoogtekaart-mountain1.png}%
+    \caption{\cite{hoogtekaart-illustratie}}%
+    \label{fig:hoogtekaart-mountain1}}%
+  \parbox{0.33\textwidth}{%
+    \includegraphics[width=0.9\linewidth]{hoogtekaart-mountain2.png}%
+    \caption{\cite{hoogtekaart-illustratie}}%
+    \label{fig:hoogtekaart-mountain2}}%
+  \parbox{0.33\textwidth}{%
+    \includegraphics[width=0.9\linewidth]{hoogtekaart-mountain3.png}%
+    \caption{\cite{hoogtekaart-illustratie}}%
+    \label{fig:hoogtekaart-mountain3}}%
+\end{figure}
+
+De lijst wordt in deze fase in twee aparte lijsten opgedeeld, gesplitst op het middelste punt dat zojuist willekeurig bewogen is. Van beide van deze lijsten wordt weer het middelpunt genomen en willekeurig verplaatst (zie Fig.~\ref{fig:hoogtekaart-mountain1}). Nu is de verdeling van de afstand echter in een kleiner gebied, bijvoorbeeld tussen $-0.5$ en $0.5$ in plaats van $-1.0$ en $1.0$ bij het eerste middelpunt. Hoe kleiner de lijst wordt, hoe minder groot dit gebied ook zal zijn.. Hier wordt later meer over uitgelegd. Het is belangrijk om op te merken dat hoewel de hoogte in de figuren wordt aangegeven met een verplaatsing omhoog of omlaag, dit in het algoritme slechts een eigenschap van een punt is. Een punt zou dus ook niet loodrecht van de deellijst af verplaatsen maar nog steeds naar boven of beneden.
+
+Ten slotte worden ook deze beide deellijsten weer opgedeeld en worden de laatste middelpunten willekeurig verplaatst (nog minder deze keer), zoals te zien is in Fig.~\ref{fig:hoogtekaart-mountain2}. Nu zijn er geen deellijsten meer te maken en is het algoritme klaar. Het eindresultaat is in Fig.~\ref{fig:hoogtekaart-mountain3} te zien.
+
+\subsection{Het diamond-square algoritme}
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \includegraphics[width=0.9\linewidth]{hoogtekaart-2d.png}
+  \caption{\cite{hoogtekaart-illustratie}}
+  \label{fig:hoogtekaart-2d}
+\end{wrapfigure}
+
+Het standaard midpoint-displacement algoritme werkt goed in 1 dimensie, maar bij 2 of meer dimensies komt het sterk tekort. Omdat bij midpoint-displacement alleen het middelste punt met een willekeurige afstand wordt verplaatst, worden veel hoekpunten overgeslagen. In Fig.~\ref{fig:hoogtekaart-2d} zijn ter illustratie in rood de punten weergegeven die bij het standaard midpoint-displacement algoritme niet willekeurig worden verplaatst in dit 5 bij 5 grid. Ook wordt de positie van deze punten maar door 2 buurpunten bepaald, waar de middelpunten door 4 buren worden bepaald. Door deze eigenschappen van de punten heeft een 2 dimensionale versie van standaard middelpoint-displacement meer horizontale en verticale afwijkingen. Aangezien in de natuur geen voorkeur is voor een bepaalde richting zijn deze afwijkingen ook in onze hoogtekaarten ongewenst. 
+
+Het diamond-square algoritme lost dit probleem op door een extra fase aan elke ronde toe te voegen. Na deze fase zijn de aangepaste punten gearrangeerd in een rooster van vierkanten, deze stap wordt daarom de square step genoemd. Bij de stap waar de middelpunten verplaatst worden zijn de aangepaste punten juist gearrangeerd in een rooster van 90 graden geroteerde vierkanten die diamanten worden genoemd. Deze stap heet dan ook de diamond step. Hiervan komt ook de naam van het diamond-square algoritme. In Fig.~\ref{fig:diamond-square}, afbeelding 1 tot 4, zijn de stappen van het diamond-square algoritme op een vijf bij vijf rooster weergegeven. In afbeelding 2 tot 4 zijn de diamond steps te zien; in adbeelding 3 tot 5 de square steps.
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{diamond-square.png}
+  \caption{Visualisatie van de Diamond Square Algorithm\cite{diamond-square}}
+  \label{fig:diamond-square}
+\end{figure}
+
+Alle punten op het behandelde rooster van het diamond-square algoritme worden 1 keer verplaatst. Het verplaatsen van punten in zowel de \emph{square step} als in de \emph{diamond step} is $O(1)$. Het totale algoritme is dus $O(1 * aantal~punten) = O(aantal~punten)$. Een algoritme met een een betere complexiteit om een hoogtekaart is niet mogelijk, aangezien elk punt voor een hoogtekaart een waarde toegewezen moet krijgen. Elk algoritme voor het genereren van een hoogtekaart is dus minimaal $O(aantal~punten)$. Deze goede complexiteit van het diamond-square algoritme is een belangrijk voordeel tegenover bijvoorbeeld fractal kaarten geproduceerd met verschillende lagen van \emph{perlin noise}, dat een complexiteit van $O(aantal~punten * log(aantal~punten))$ heeft.
+
+\subsection{Relatie tussen verplaatsing en verplaatst gebied}
+
+Zoals eerder al was genoemd, wordt het bereik van de willekeurige verplaatsing bij deze algoritmes vaak gerelateerd aan hoe groot het verplaatste gebied is. Over het algemeen wordt gekozen om een groter bereik te nemen bij een grotere functie. Aangezien de grootte van het verplaatst gebied van de ene stap naar de andere stap altijd halveert en de absolute grootte van de waardes niet uitmaakt (de kaart wordt immers genormaliseert), kan de hoeveelste stap het is worden gebruikt als een vervanger van de grootte van het verplaatst gebied. 
+
+Vaak wordt het bereik van de verplaatsing vermenigvuldigt met $2^{-h*stap}$. De $h$ is hier een gekozen waarde, meestal tussen de $0.0$ en $1.0$. De $h$ kan worden veranderd om een ruigere kaart te genereren. Een lagere $h$ zorgt voor een ruigere kaart, het bereik wordt immers minder verkleint bij een kleiner verplaatst gebied, waardoor veel kleine details ontstaan. Een hogere $h$ zorgt voor een 'gladdere' kaart, waarbij er weinig kleine details zijn. Met een functie $r()$ die een willekeurig getal tussen $-1.0$ en $1.0$ geeft, is de verplaatsing van een punt met deze methode als volgt weer te geven:
+
+\begin{equation}
+  veerplaatsing~punt=r()*2^{-h*stap}
+\end{equation}
+
+Bij het gebruiken van deze simpele formule om het bereik van de willekeurige verplaatsing te bepalen liepen we echter tegen een probleem aan. De grote van de verandering van de verplaatsing bleek niet altijd direct gerelateerd aan de grootte van de verandering van het verplaatste oppervlakte. Op een schaal van honderden kilometers is namelijk geen grotere willekeurige verplaatsing dan op de schaal van bergen. En op een kleine schaal – bijvoorbeeld meters – is juist wel een kleinere verplaatsing dan op de schaal van bergen. Omdat de eerder gegeven formule altijd de willekeurige verandering vermenigvuldigt met een constante ($2^{-h}$), is deze formule niet geschikt.
+
+\begin{figure}
+  \centering
+  \parbox[t]{0.33\textwidth}{%
+    \includegraphics[width=0.9\linewidth]{kaart1.png}%
+    \caption{$h=0.45$\cite{kaart}}%
+    \label{fig:kaart1}}%
+  \parbox[t]{0.33\textwidth}{%
+    \includegraphics[width=0.9\linewidth]{kaart2.png}%
+    \caption{$h=0.7$\cite{kaart}}%
+    \label{fig:kaart2}}%
+  \parbox[t]{0.33\textwidth}{%
+    \includegraphics[width=0.9\linewidth]{kaart3.png}%
+    \caption{\emph{aangepaste curve}\cite{kaart}}%
+  \label{fig:kaart3}}%
+\end{figure}
+
+Dit probleem kwam ook naar voren in de kaarten die onze \emph{diamond-square} implementatie met deze formule genereerde. Bij een lage $h$ (een ruwe kaart), onstaan interessant gevormde eilanden, maar is er te sterk detail, wat voor te korrelige kusten zorgt (zie Fig.~\ref{fig:kaart1}). Bij een hoge h ontstaan wel zachte kusten, maar heeft het eiland bijna altijd dezelfde ronde vorm (zie Fig.~\ref{fig:kaart2}). Door de h te varieren was dit probleem niet op te lossen, dus zagen we ons genoodzaakt om een andere oplossing te bedenken. Wij hebben besloten een aangepaste curve te gebruiken waar we zelf kunnen bepalen wat het bereik is bij elke mogelijke grootte van het verplaatst gebied. Dit geeft ons volledige controle over de details en maakt het makkelijk om het later aan te passen. Helaas betekent dit wel dat we voor elke grootte van het verplaatst gebied moeten specificeren wat het bereik is, wat meer werk is dan een variabele aanpassen.
+
+\subsection{Implementatie}
+
+Ter illustratie hebben we een simpele implementatie van het diamond-square algoritme in C++11 geschreven. Dit programma schrijft een hoogtekaart naar een zwart-wit PNG-illustratie bestand dat met een gewone foto viewer bekeken kan worden. Dit programma gebruikt de lodepng library om naar PNG-bestanden te schrijven en is te vinden op: \url{http://paste.hydra.ws/p/o6R}.
+
+\newpage
 \bibliography{sources}
 
 \end{document}
